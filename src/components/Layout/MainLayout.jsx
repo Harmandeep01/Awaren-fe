@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
-
+import NavButton from '../ui/NavButton';
 
 export default function MainLayout() {
   const navigate = useNavigate();
