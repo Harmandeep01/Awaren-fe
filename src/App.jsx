@@ -25,7 +25,7 @@ export default function App() {
         <Route path="/insights" element={<Insights />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/memory/:id" element={<MemoryDetail />} />
-        <Route path="/memory/:id" element={<MemoryDetail />} />
+        {/* <Route path="/memory/:id" element={<MemoryDetail />} /> */}
       </Route>
 
       <Route path="/login" element={<Login />} />
