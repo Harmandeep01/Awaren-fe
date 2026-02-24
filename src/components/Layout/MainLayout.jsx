@@ -1,19 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 
-const NavButton = ({ icon, label, active, onClick }) => (
-  <button 
-    onClick={onClick}
-    className={`flex flex-col items-center gap-1.5 transition-all active:scale-90 border-none outline-none ring-0 appearance-none bg-transparent ${
-      active ? 'text-primary' : 'text-slate-400 dark:text-slate-500'
-    }`}
-  >
-    <span className="material-icons-round text-[26px]">{icon}</span>
-    <span className={`text-[10px] font-black uppercase tracking-widest ${active ? 'opacity-100' : 'opacity-60'}`}>
-      {label}
-    </span>
-  </button>
-);
 
 export default function MainLayout() {
   const navigate = useNavigate();
