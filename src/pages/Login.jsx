@@ -25,7 +25,7 @@ export default function Login() {
     
     try {
       // ✅ UPDATED: Used central api instance instead of fetch('http://localhost:8000...')
-      const response = await api.post('/api/v1/user/login', {
+      const response = await api.post('/user/login', {
         email: formData.email,
         password: formData.password,
       });

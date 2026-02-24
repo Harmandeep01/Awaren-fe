@@ -26,7 +26,7 @@ export default function Register() {
   try {
     // ✅ Use the centralized axios instance
     // This automatically prepends 'https://awaren-backend-1.onrender.com'
-    const response = await api.post('/api/v1/user/register', {
+    const response = await api.post('/user/register', {
       email: formData.email,
       password: formData.password,
       full_name: formData.fullName, // Adjust keys based on your backend schema

@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://awaren-backend-1.onrender.com', // Adjust to your backend port
+  baseURL: 'https://awaren-backend-1.onrender.com/api/v1', // Adjust to your backend port
   headers: { 'Content-Type': 'application/json' }
 });
 
