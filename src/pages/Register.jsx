@@ -39,7 +39,7 @@ export default function Register() {
       const response = await api.post('/user/register', {
         email: formData.email,
         password: formData.password,
-        full_name: formData.fullName, // Adjust key to match your app/schema
+        user_name: formData.fullName, // Adjust key to match your app/schema
       });
 
       if (response.status === 200 || response.status === 201) {
