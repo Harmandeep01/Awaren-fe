@@ -6,6 +6,7 @@ export default function Register() {
   // Sync theme with document root
   const [isDark, setIsDark] = useState(() => localStorage.getItem('theme') === 'dark');
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     user_name: '',
     email: '',
@@ -18,46 +19,32 @@ export default function Register() {
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
   }, [isDark]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsLoading(true);
+  
+  try {
+    // ✅ Use the centralized axios instance
+    // This automatically prepends 'https://awaren-backend-1.onrender.com'
+    const response = await api.post('/api/v1/user/register', {
+      email: formData.email,
+      password: formData.password,
+      full_name: formData.fullName, // Adjust keys based on your backend schema
+    });
 
-  const handleSubmit = async  (e) => {
-    e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match");
-      return;
+    // Axios returns the body in the .data property
+    if (response.status === 200 || response.status === 201) {
+      console.log('Account created successfully');
+      navigate('/login');
     }
-    try {
-      const response = await fetch('http://localhost:8000/api/v1/user/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          user_name: formData.user_name,
-          email: formData.email,
-          password: formData.password,
-        }),
-      });
-      if(response.ok){
-        const data = await response.json();
-        localStorage.setItem('token', data.access_token);
-        console.log('Register in successfully');
-        alert('Registration successful, login again')
-        await navigate('/login')
-      }
-      
-
-    } catch (err) {
-      console.error("Login failed:", err);
-    } finally {
-      setIsLoading(false);
-    }
-    console.log("Registering user:", formData.user_name);
-    navigate('/home');
-  };
+  } catch (err) {
+    // Catch specific error messages from your FastAPI backend
+    const errorMsg = err.response?.data?.detail || "Registration failed";
+    console.error("Error:", errorMsg);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-background-light font-body dark:bg-background-dark text-slate-900 dark:text-white font-display flex flex-col transition-colors duration-500 selection:bg-primary/30">
