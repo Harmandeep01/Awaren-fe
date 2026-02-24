@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-
+import api from '../config/api'
 export default function Register() {
   const navigate = useNavigate();
   // Sync theme with document root
