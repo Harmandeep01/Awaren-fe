@@ -1,0 +1,176 @@
+@import "tailwindcss";
+
+/* ✅ Enable class-based dark mode */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@theme {
+  --color-primary: #0D9488;
+  --color-primary-dark: #115E59;
+  --color-secondary: #CA8A04;
+  --color-festive-red: #DC2626;
+  --color-festive-green: #166534;
+  --color-background-dark: #0e1a1f;
+  --color-surface-dark: #16262c;
+  /* --color-primary: #11a4d4; */
+  --color-gold-accent: #d4af37;
+  
+  --font-display: "Playfair Display", serif;
+  --font-body: "Plus Jakarta Sans", sans-serif;
+  
+  --shadow-soft: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  --shadow-glow: 0 0 15px rgba(13, 148, 136, 0.3);
+  /* --font-display: "Plus Jakarta Sans", sans-serif;
+  --font-body: "Plus Jakarta Sans", sans-serif; */
+}
+
+
+.material-symbols-outlined {
+  /* This makes them look similar to your screenshot */
+  font-variation-settings:
+    'FILL' 0,   /* 1 for filled icons, 0 for outlined */
+    'wght' 400, /* Thickness: 100 to 700 */
+    'GRAD' 0,
+    'opsz' 24;  /* Optical size */
+    
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+}
+
+/* src/index.css */
+
+@layer base {
+  body {
+    @apply bg-white text-black dark:bg-black dark:text-white;
+  }
+
+  /* Standard Reset */
+  button, input, textarea {
+    @apply outline-none border-none ring-0;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ✅ Fixed: Proper separation to kill focus rectangles */
+  button:focus, button:active, button:focus-visible,
+  input:focus, input:active,
+  textarea:focus, textarea:active {
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    ring: 0 !important;
+  }
+
+  html {
+    transition: background-color 0.5s ease-in-out, color 0.5s ease-in-out;
+  }
+}
+/* Confined infinite snowfall */
+@keyframes snow {
+  0% { 
+    transform: translateY(-20px) translateX(0); 
+    opacity: 0; 
+  }
+  20% { 
+    opacity: 1; 
+  }
+  100% { 
+    transform: translateY(250px) translateX(20px); 
+    opacity: 0; 
+  }
+}
+
+.snowflake {
+  position: absolute;
+  color: white;
+  top: -20px;
+  pointer-events: none;
+  z-index: 1;
+  /* Default infinite animation */
+  animation: snow 8s linear infinite;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.animate-sidebar {
+  animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* For that premium "glass" effect in the sidebar */
+.sidebar-glass {
+  background: rgba(15, 40, 40, 0.95);
+  backdrop-filter: blur(20px);
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0px rgba(13, 148, 136, 0.4); transform: scale(1); }
+  50% { opacity: 0.8; box-shadow: 0 0 0 6px rgba(13, 148, 136, 0); transform: scale(1.05); }
+}
+
+/* src/index.css */
+
+@keyframes wavy-bounce {
+  0%, 100% { 
+    transform: translateY(0); 
+    opacity: 0.4;
+  }
+  50% { 
+    transform: translateY(-6px); /* Slightly higher for better visibility */
+    opacity: 1;
+  }
+}
+
+.typing-dot {
+  animation: wavy-bounce 1.2s ease-in-out infinite;
+}
+
+/* The Secret: Staggering the start times */
+.typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* src/index.css */
+
+/* Ethereal Aurora Borealis Effect */
+@keyframes aurora {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Breathing Light for the Avatar/Profile area */
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 10px rgba(13, 148, 136, 0.2); border-color: rgba(255,255,255,0.2); }
+    50% { box-shadow: 0 0 25px rgba(252, 211, 77, 0.4); border-color: rgba(252, 211, 77, 0.5); }
+}
+
+.aurora-bg {
+    background: linear-gradient(-45deg, #0f4c47, #115E59, #0D9488, #0f4c47);
+    background-size: 400% 400%;
+    animation: aurora 15s ease infinite;
+}
+
+.profile-glow {
+    animation: pulse-glow 4s ease-in-out infinite;
+}
+
+/* Soft drift for the header text */
+@keyframes text-drift {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-3px); }
+    100% { transform: translateY(0px); }
+}
+
+.drift-text {
+    animation: text-drift 6s ease-in-out infinite;
+}
