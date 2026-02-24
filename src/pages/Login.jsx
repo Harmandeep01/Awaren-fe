@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../config/api';
-import { nav } from 'framer-motion/client';
+
 export default function Login() {
   const navigate = useNavigate();
   const [isDark, setIsDark] = useState(() => localStorage.getItem('theme') === 'dark');
@@ -23,49 +23,42 @@ export default function Login() {
     e.preventDefault();
     setIsLoading(true);
     
-    // Logic for authenticating against public.users table
     try {
-      const response = await fetch('http://localhost:8000/api/v1/user/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-        }),
+      // ✅ UPDATED: Used central api instance instead of fetch('http://localhost:8000...')
+      const response = await api.post('/api/v1/user/login', {
+        email: formData.email,
+        password: formData.password,
       });
-      if(response.ok){
-        const data = await response.json();
-        localStorage.setItem('token', data.access_token);
-        console.log('Logged in successfully');
-        await navigate('/home')
-      }
-      
 
+      // Axios puts the response body in .data
+      if (response.data?.access_token) {
+        localStorage.setItem('token', response.data.access_token);
+        console.log('Logged in successfully');
+        navigate('/home');
+      }
     } catch (err) {
-      console.error("Login failed:", err);
+      console.error("Login failed:", err.response?.data?.detail || err.message);
+      // You could add an error state here to show a toast/message to the user
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleGoogleLogin = () => {
-    // Logic for initiating Google OAuth 2.0 flow
-    window.location.href = "http://localhost:8000/api/v1/auth/google";
+    // ✅ UPDATED: Used the baseURL from your config for the OAuth redirect
+    window.location.href = `${api.defaults.baseURL}/api/v1/auth/google`;
   };
 
   return (
-    <div className="min-h-screen font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-display transition-colors duration-500 flex flex-col">
+    <div className="min-h-screen font-display bg-background-light dark:bg-background-dark text-slate-900 dark:text-white transition-colors duration-500 flex flex-col">
       
-      {/* Header aligned with DashboardHeader style */}
       <header className="flex items-center justify-between p-6 z-10">
         <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary shadow-sm shadow-primary/5">
-              <span className="material-symbols-outlined filled text-[22px]">psychology</span>
-            </div>
-            <span className="text-xl font-bold tracking-tight">AWAREN</span>
+          <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary shadow-sm shadow-primary/5">
+            <span className="material-symbols-outlined filled text-[22px]">psychology</span>
           </div>
+          <span className="text-xl font-bold tracking-tight">AWAREN</span>
+        </div>
         <button 
           onClick={() => setIsDark(!isDark)}
           className="w-10 h-10 rounded-full border border-slate-200 dark:border-white/10 flex items-center justify-center text-gold-accent hover:bg-white/5 transition-all"
@@ -76,17 +69,13 @@ export default function Login() {
         </button>
       </header>
 
-      {/* Main Content */}
       <main className="flex-1 flex flex-col justify-center px-6 py-8 w-full max-w-[440px] mx-auto">
-        
         <div className="mb-10 text-center animate-in fade-in slide-in-from-top-4 duration-700">
           <h1 className="text-[32px] font-bold tracking-tight mb-2">Welcome Back</h1>
           <p className="text-slate-500 dark:text-slate-400 font-medium">Your conscious guide awaits.</p>
         </div>
 
         <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
-          
-          {/* Email Field */}
           <div className="flex flex-col gap-2">
             <label className="text-sm font-semibold tracking-wide ml-1">Email Address</label>
             <input 
@@ -96,11 +85,10 @@ export default function Login() {
               value={formData.email}
               onChange={handleInputChange}
               placeholder="name@example.com" 
-              className="w-full h-14 bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/10 rounded-2xl px-5 text-base focus:ring-2 focus:ring-primary focus:border-transparent transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+              className="w-full h-14 bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/10 rounded-2xl px-5 text-base focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
             />
           </div>
 
-          {/* Password Field */}
           <div className="flex flex-col gap-2">
             <div className="flex justify-between items-center px-1">
               <label className="text-sm font-semibold tracking-wide">Password</label>
@@ -115,11 +103,10 @@ export default function Login() {
               value={formData.password}
               onChange={handleInputChange}
               placeholder="Enter your password" 
-              className="w-full h-14 bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/10 rounded-2xl px-5 text-base focus:ring-2 focus:ring-primary focus:border-transparent transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500"
+              className="w-full h-14 bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/10 rounded-2xl px-5 text-base focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
             />
           </div>
 
-          {/* Login Button */}
           <button 
             type="submit"
             disabled={isLoading}
@@ -129,14 +116,12 @@ export default function Login() {
             {!isLoading && <span className="material-symbols-outlined text-xl">arrow_forward</span>}
           </button>
 
-          {/* Social Divider */}
           <div className="relative flex py-2 items-center">
             <div className="flex-grow border-t border-slate-200 dark:border-white/5"></div>
             <span className="mx-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Or continue with</span>
             <div className="flex-grow border-t border-slate-200 dark:border-white/5"></div>
           </div>
 
-          {/* Google OAuth Button */}
           <button 
             type="button"
             onClick={handleGoogleLogin}
