@@ -19,6 +19,11 @@ export default function Register() {
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
   }, [isDark]);
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
   const handleSubmit = async (e) => {
   e.preventDefault();
   setIsLoading(true);
@@ -26,7 +31,7 @@ export default function Register() {
   try {
     // ✅ Use the centralized axios instance
     // This automatically prepends 'https://awaren-backend-1.onrender.com'
-    const response = await api.post('/user/register', {
+    const response = await api.post('/api/v1/user/register', {
       email: formData.email,
       password: formData.password,
       full_name: formData.fullName, // Adjust keys based on your backend schema
