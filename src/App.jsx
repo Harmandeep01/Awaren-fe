@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import MainLayout from './components/layout/MainLayout';
+import MainLayout from './components/Layout/MainLayout'
 import Home from './pages/Home';
 import Memories from './pages/Memories';
 import Chat from './pages/Chat';
