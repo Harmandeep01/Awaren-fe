@@ -94,7 +94,7 @@ const handleSendMessage = async (e, forcedText = null) => {
     // ✅ STYLE MATCH: Using your requested api.post format
     // Note: For real-time streaming to work with Axios, the backend must support 
     // it and you'd need additional config. For standard POST:
-    const response = await api.post('/api/v1/chat/stream', {
+    const response = await api.post('/chat/stream', {
       text: userMsg,
       conversation_id: conversationId,
     });
@@ -124,7 +124,7 @@ const handleSendMessage = async (e, forcedText = null) => {
 // const triggerBackgroundTitleGen = async (id, firstMsg) => {
 //   try {
 //     // ✅ STYLE MATCH: Uses api.post with automatic baseURL and headers
-//     const response = await api.post(`/api/v1/conversations/${id}/generate-title`, {
+//     const response = await api.post(`/conversations/${id}/generate-title`, {
 //       first_message: firstMsg,
 //     });
     
