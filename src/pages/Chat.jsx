@@ -92,7 +92,7 @@ const handleSendMessage = async (e, forcedText = null) => {
 
   try {
     // ✅ PATCHED: Uses api.defaults.baseURL for Render production
-    const response = await fetch(`${api.defaults.baseURL}/api/v1/chat/stream`, {
+    const response = await fetch(`${api.defaults.baseURL}/chat/stream`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
