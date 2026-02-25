@@ -91,30 +91,58 @@ const handleSendMessage = async (e, forcedText = null) => {
   setIsTyping(true);
 
   try {
-    // ✅ STYLE MATCH: Using your requested api.post format
-    // Note: For real-time streaming to work with Axios, the backend must support 
-    // it and you'd need additional config. For standard POST:
-    const response = await api.post('/chat/stream', {
-      text: userMsg,
-      conversation_id: conversationId,
+    // ✅ PATCHED: Uses api.defaults.baseURL for Render production
+    const response = await fetch(`${api.defaults.baseURL}/api/v1/chat/stream`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // ✅ PATCHED: Uses token from your auth logic
+        'Authorization': `Bearer ${localStorage.getItem('token')}`, 
+      },
+      body: JSON.stringify({
+        text: userMsg,
+        conversation_id: conversationId,
+      }),
     });
 
-    // If your backend returns the full text at once in this mode:
-    const data = response.data; 
-    
-    if (data.text) {
-      setMessages(prev => [
-        ...prev, 
-        { id: Date.now() + 1, type: 'ai', text: data.text }
-      ]);
-    }
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let currentAiResponse = '';
 
-    if (data.conversation_id && data.conversation_id !== conversationId) {
-      setConversationId(data.conversation_id);
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value);
+      const lines = chunk.split('\n');
+
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          try {
+            const data = JSON.parse(line.slice(6));
+            if (data.chunk) {
+              currentAiResponse += data.chunk;
+              setMessages(prev => {
+                const otherMsgs = prev.filter(m => m.id !== 'streaming-ai');
+                return [...otherMsgs, { id: 'streaming-ai', type: 'ai', text: currentAiResponse }];
+              });
+            }
+            if (data.conversation_id && data.conversation_id !== conversationId) {
+              setConversationId(data.conversation_id);
+            }
+          } catch (err) {
+            console.error("Error parsing stream chunk", err);
+          }
+        }
+      }
     }
+    
+    setMessages(prev => 
+      prev.map(m => m.id === 'streaming-ai' ? { ...m, id: Date.now() + Math.random() } : m)
+    );
 
   } catch (error) {
-    console.error('Chat error:', error.response?.data?.detail || error.message);
+    console.error('Streaming error:', error);
   } finally {
     setIsTyping(false);
   }
