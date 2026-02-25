@@ -90,17 +90,17 @@ useEffect(() => {
     setIsTyping(true);
 
     try {
-      const response = await fetch('http://localhost:8000/api/v1/chat/stream', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify({
-          text: userMsg,
-          conversation_id: conversationId,
-        }),
-      });
+      const response = await fetch(`${api}/chat/stream`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+    },
+    body: JSON.stringify({
+      text: userMsg,
+      conversation_id: conversationId,
+    }),
+  });
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
