@@ -79,94 +79,90 @@ useEffect(() => {
   };
 
 // 2. MODIFIED: Prevent the second-message flicker
-  const handleSendMessage = async (e, forcedText = null) => {
-    if (e) e.preventDefault();
+// Inside Chat.jsx
+const handleSendMessage = async (e, forcedText = null) => {
+  if (e) e.preventDefault();
 
-    const userMsg = forcedText || inputText;
-    if (!userMsg.trim() || isTyping) return;
+  const userMsg = forcedText || inputText;
+  if (!userMsg.trim() || isTyping) return;
 
-    setInputText('');
-    setMessages(prev => [...prev, { id: Date.now(), type: 'user', text: userMsg }]);
-    setIsTyping(true);
+  setInputText('');
+  setMessages(prev => [...prev, { id: Date.now(), type: 'user', text: userMsg }]);
+  setIsTyping(true);
 
-    try {
-      const response = await fetch('http://localhost:8000/api/v1/chat/stream', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify({
-          text: userMsg,
-          conversation_id: conversationId,
-        }),
-      });
+  try {
+    // ✅ PATCHED: Uses api.defaults.baseURL for Render production
+    const response = await fetch(`${api.defaults.baseURL}/chat/stream`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // ✅ PATCHED: Uses token from your auth logic
+        'Authorization': `Bearer ${localStorage.getItem('token')}`, 
+      },
+      body: JSON.stringify({
+        text: userMsg,
+        conversation_id: conversationId,
+      }),
+    });
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let currentAiResponse = '';
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let currentAiResponse = '';
 
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
 
-        const chunk = decoder.decode(value);
-        const lines = chunk.split('\n');
+      const chunk = decoder.decode(value);
+      const lines = chunk.split('\n');
 
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            try {
-               const data = JSON.parse(line.slice(6));
-
-              if (data.chunk) {
-                currentAiResponse += data.chunk;
-                setMessages(prev => {
-                  // Use a stable ID for the streaming message
-                  const otherMsgs = prev.filter(m => m.id !== 'streaming-ai');
-                  return [...otherMsgs, { id: 'streaming-ai', type: 'ai', text: currentAiResponse }];
-                });
-              }
-
-              if (data.conversation_id && data.conversation_id !== conversationId) {
-                // IMPORTANT: Update the ID without triggering a history wipe
-                setConversationId(data.conversation_id);
-              }
-            } catch (err) {
-              console.error("Error parsing stream chunk", err);
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          try {
+            const data = JSON.parse(line.slice(6));
+            if (data.chunk) {
+              currentAiResponse += data.chunk;
+              setMessages(prev => {
+                const otherMsgs = prev.filter(m => m.id !== 'streaming-ai');
+                return [...otherMsgs, { id: 'streaming-ai', type: 'ai', text: currentAiResponse }];
+              });
             }
+            if (data.conversation_id && data.conversation_id !== conversationId) {
+              setConversationId(data.conversation_id);
+            }
+          } catch (err) {
+            console.error("Error parsing stream chunk", err);
           }
         }
       }
-      
-      // 3. CRITICAL: Once the stream is done, convert 'streaming-ai' to a real ID
-      // so it doesn't get filtered out by the next message sent.
-      setMessages(prev => 
-        prev.map(m => m.id === 'streaming-ai' ? { ...m, id: Date.now() + Math.random() } : m)
-      );
-
-    } catch (error) {
-      console.error('Streaming error:', error);
-    } finally {
-      setIsTyping(false);
     }
-  };
+    
+    setMessages(prev => 
+      prev.map(m => m.id === 'streaming-ai' ? { ...m, id: Date.now() + Math.random() } : m)
+    );
 
-  // // ORIGINAL background title trigger
-  // const triggerBackgroundTitleGen = (id, firstMsg) => {
-  //   fetch(`http://localhost:8000/api/v1/conversations/${id}/generate-title`, {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //       Authorization: `Bearer ${localStorage.getItem('token')}`,
-  //     },
-  //     body: JSON.stringify({ first_message: firstMsg }),
-  //   })
-  //     .then(res => res.json())
-  //     .then(data => {
-  //       console.log('Title generated:', data.title);
-  //     })
-  //     .catch(err => console.error('Title generation failed:', err));
-  // };
+  } catch (error) {
+    console.error('Streaming error:', error);
+  } finally {
+    setIsTyping(false);
+  }
+};
+
+// Add this inside your Chat component or as a helper function
+// const triggerBackgroundTitleGen = async (id, firstMsg) => {
+//   try {
+//     // ✅ STYLE MATCH: Uses api.post with automatic baseURL and headers
+//     const response = await api.post(`/conversations/${id}/generate-title`, {
+//       first_message: firstMsg,
+//     });
+    
+//     // Axios returns the data in the .data object
+//     console.log('Title generated:', response.data.title);
+//   } catch (err) {
+//     // Catch specific errors from your Render backend
+//     console.error('Title generation failed:', err.response?.data?.detail || err.message);
+//   }
+// };
 
   return (
     <div className="flex flex-col h-screen bg-slate-50 font-body dark:bg-[#0b1120] animate-in fade-in zoom-in duration-300">
